@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/service.Dockerfile
+    container_name: api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - api-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/db.Dockerfile
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - api-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  api-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
