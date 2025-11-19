@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"qa-service/internal/di"
+	"qa-service/internal/httpapi/docs"
 	"qa-service/internal/httpapi/handlers"
 
 	"github.com/go-chi/chi/v5"
@@ -25,4 +26,7 @@ func RegisterRoutes(m *chi.Mux, c *di.Container) {
 		m.Post("/questions/{id}/answers", answerHandler.CreateAnswer)
 		m.Delete("/answers/{id}", answerHandler.DeleteAnswer)
 	}
+
+	m.Get("/docs", docs.ServeIndex)
+	m.Get("/docs/swagger.yaml", docs.ServeSwagger)
 }

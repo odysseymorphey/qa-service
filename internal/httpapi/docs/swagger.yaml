@@ -1,0 +1,189 @@
+openapi: 3.0.3
+info:
+  title: QA Service API
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Questions
+  - name: Answers
+
+paths:
+  /questions:
+    get:
+      tags: [Questions]
+      summary: Получить список вопросов
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+    post:
+      tags: [Questions]
+      summary: Создать вопрос
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Некорректный запрос
+  /questions/{id}:
+    get:
+      tags: [Questions]
+      summary: Получить вопрос и ответы
+      parameters:
+        - $ref: "#/components/parameters/QuestionID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  question:
+                    $ref: "#/components/schemas/Question"
+                  answers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Answer"
+        "404":
+          description: Не найдено
+    delete:
+      tags: [Questions]
+      summary: Удалить вопрос
+      parameters:
+        - $ref: "#/components/parameters/QuestionID"
+      responses:
+        "204":
+          description: Удалено
+        "404":
+          description: Не найдено
+  /questions/{id}/answers:
+    post:
+      tags: [Answers]
+      summary: Добавить ответ к вопросу
+      parameters:
+        - $ref: "#/components/parameters/QuestionID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerCreateRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Answer"
+        "400":
+          description: Некорректный запрос
+  /answers/{id}:
+    get:
+      tags: [Answers]
+      summary: Получить ответ
+      parameters:
+        - $ref: "#/components/parameters/AnswerID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Answer"
+        "404":
+          description: Не найдено
+    delete:
+      tags: [Answers]
+      summary: Удалить ответ
+      parameters:
+        - $ref: "#/components/parameters/AnswerID"
+      responses:
+        "204":
+          description: Удалено
+        "404":
+          description: Не найдено
+components:
+  parameters:
+    QuestionID:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+      description: Идентификатор вопроса
+    AnswerID:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+      description: Идентификатор ответа
+  schemas:
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - text
+        - created_at
+    QuestionRequest:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+        - text
+    Answer:
+      type: object
+      properties:
+        id:
+          type: integer
+        question_id:
+          type: integer
+        user_id:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - question_id
+        - user_id
+        - text
+        - created_at
+    AnswerCreateRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+        text:
+          type: string
+      required:
+        - user_id
+        - text

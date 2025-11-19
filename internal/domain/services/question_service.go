@@ -1,9 +1,13 @@
 package services
 
 import (
+	"errors"
 	"qa-service/internal/domain/dto"
 	"qa-service/internal/domain/repository"
+	"strings"
 )
+
+var ErrQuestionTextRequired = errors.New("question text is required")
 
 type QuestionService interface {
 	GetAllQuestions() ([]dto.Question, error)
@@ -23,17 +27,30 @@ func NewQuestionService(repo repository.QuestionRepository) QuestionService {
 }
 
 func (s *questionService) GetAllQuestions() ([]dto.Question, error) {
-	return nil, nil
+	return s.repo.GetAllQuestions()
 }
 
 func (s *questionService) GetQuestionByID(id int) (*dto.Question, []dto.Answer, error) {
-	return nil, nil, nil
+	return s.repo.GetQuestionByID(id)
 }
 
 func (s *questionService) CreateQuestion(question dto.QuestionRequest) (*dto.Question, error) {
-	return nil, nil
+	if strings.TrimSpace(question.Text) == "" {
+		return nil, ErrQuestionTextRequired
+	}
+
+	id, createdAt, err := s.repo.CreateQuestion(question)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.Question{
+		ID:        id,
+		Text:      question.Text,
+		CreatedAt: createdAt,
+	}, nil
 }
 
 func (s *questionService) DeleteQA(id int) error {
-	return nil
+	return s.repo.DeleteQA(id)
 }
